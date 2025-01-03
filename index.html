@@ -14,7 +14,11 @@
             padding: 0;
         }
 
-        #title-screen {
+        #title-screen, #clock-in, #game-container {
+            display: none;
+        }
+
+        #title-screen, #clock-in {
             position: fixed;
             top: 0;
             left: 0;
@@ -22,6 +26,7 @@
             height: 100%;
             background-color: black;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 10;
@@ -32,8 +37,13 @@
             max-height: 100%;
         }
 
+        #clock-in h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: #ff6f61;
+        }
+
         #game-container {
-            display: none;
             max-width: 900px;
             margin: 20px auto;
             background: linear-gradient(135deg, #292929, #1a1a1a);
@@ -49,13 +59,57 @@
             text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
         }
 
-        /* Other styles remain unchanged */
+        button {
+            background: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            background: #e65550;
+        }
+
+        /* Customer Card */
+        .customer-card {
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #444;
+            border-radius: 50%;
+            width: 300px;
+            height: 300px;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .customer-items {
+            font-size: 1.2rem;
+            color: #cfcfcf;
+            text-align: center;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
     <!-- Title Screen -->
     <div id="title-screen">
         <img src="cult.jpg" alt="Cult in Aisle 9">
+    </div>
+
+    <!-- Clock In Screen -->
+    <div id="clock-in">
+        <h1>It's 5pm - Time to Clock In!</h1>
+        <button onclick="clockIn()">Clock In</button>
     </div>
 
     <!-- Game Container -->
@@ -67,33 +121,142 @@
         </div>
         <div id="game-text">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
         <div class="customer-card" id="customer-card">
-            <div class="customer-image" id="customer-image">🛒</div>
-            <div class="customer-name" id="customer-name">--</div>
-            <div class="customer-items" id="customer-items">--</div>
+            <div id="customer-name">--</div>
+            <div id="customer-items">--</div>
         </div>
         <div id="choices"></div>
     </div>
 
     <script>
-        // Show title screen for 5 seconds
-        function showTitleScreen() {
-            const titleScreen = document.getElementById('title-screen');
-            const gameContainer = document.getElementById('game-container');
+        const gameState = {
+            customersServed: 0,
+            suspiciousItems: 0,
+            score: 0,
+            maxCustomers: 10,
+            maxSuspicious: 3,
+            customers: [
+                { name: "John", items: ["Hammer", "Nails"], suspicious: false },
+                { name: "Martha", items: ["Flashlight", "Batteries"], suspicious: false },
+                { name: "Rick", items: ["Rope", "Duct Tape"], suspicious: true },
+                { name: "Officer Mills", items: ["Coffee", "Donut"], suspicious: false },
+                { name: "Cloaked Figure", items: ["Candles", "Shovel"], suspicious: true },
+                { name: "Sarah", items: ["Chainsaw Oil"], suspicious: true },
+                { name: "Ted", items: ["Lawn Mower Parts"], suspicious: false },
+                { name: "Lucy", items: ["Paint", "Brushes"], suspicious: false },
+                { name: "Carl", items: ["Gasoline"], suspicious: true },
+                { name: "Tom", items: ["Garden Hose"], suspicious: false }
+            ]
+        };
 
+        const titleScreen = document.getElementById('title-screen');
+        const clockInScreen = document.getElementById('clock-in');
+        const gameContainer = document.getElementById('game-container');
+        const gameText = document.getElementById('game-text');
+        const customerCard = document.getElementById('customer-card');
+        const customerName = document.getElementById('customer-name');
+        const customerItems = document.getElementById('customer-items');
+        const choicesDiv = document.getElementById('choices');
+        const inventorySuspicious = document.getElementById('suspicious-items');
+        const scoreElement = document.getElementById('score');
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showTitleScreen() {
             setTimeout(() => {
                 titleScreen.style.display = 'none';
-                gameContainer.style.display = 'block';
+                clockInScreen.style.display = 'flex';
             }, 5000);
         }
 
-        // Start the game
-        function startGame() {
-            showTitleScreen();
-            // Rest of your game initialization code here
+        function clockIn() {
+            clockInScreen.style.display = 'none';
+            gameContainer.style.display = 'block';
+            startGame();
         }
 
-        // Initialize game
-        startGame();
+        function startGame() {
+            gameState.customers = shuffle([...gameState.customers]);
+            showNextCustomer();
+        }
+
+        function showNextCustomer() {
+            if (gameState.customersServed >= gameState.maxCustomers) {
+                endGame();
+                return;
+            }
+
+            if (gameState.suspiciousItems >= gameState.maxSuspicious) {
+                gameText.innerText = "You spotted 3 suspicious customers! You've stopped the cult's plans!";
+                choicesDiv.innerHTML = `<button onclick="restartGame()">Restart Game</button>`;
+                return;
+            }
+
+            const customer = gameState.customers[gameState.customersServed];
+            customerName.innerText = customer.name;
+            customerItems.innerText = `Items: ${customer.items.join(", ")}`;
+            gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
+
+            choicesDiv.innerHTML = `
+                <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
+                <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
+            `;
+        }
+
+        function serveCustomer(index) {
+            const customer = gameState.customers[index];
+            if (customer.suspicious) {
+                gameText.innerText = `${customer.name} leaves with a chilling smirk. You feel uneasy.`;
+            } else {
+                gameState.score += 10;
+                gameText.innerText = `${customer.name} thanks you and leaves.`;
+            }
+
+            gameState.customersServed++;
+            updateInventory();
+            setTimeout(showNextCustomer, 2000);
+        }
+
+        function reportCustomer(index) {
+            const customer = gameState.customers[index];
+            if (customer.suspicious) {
+                gameState.suspiciousItems++;
+                gameState.score += 50;
+                gameText.innerText = `You reported ${customer.name}. Security intervenes and detains them.`;
+            } else {
+                gameState.score -= 20;
+                gameText.innerText = `${customer.name} was innocent. You feel guilty for accusing them.`;
+            }
+
+            gameState.customersServed++;
+            updateInventory();
+            setTimeout(showNextCustomer, 2000);
+        }
+
+        function updateInventory() {
+            inventorySuspicious.innerText = gameState.suspiciousItems;
+            scoreElement.innerText = gameState.score;
+        }
+
+        function endGame() {
+            gameText.innerText = "Your shift ends. Did you stop the cult's plans?";
+            choicesDiv.innerHTML = `<button onclick="restartGame()">Restart Game</button>`;
+        }
+
+        function restartGame() {
+            gameState.customersServed = 0;
+            gameState.suspiciousItems = 0;
+            gameState.score = 0;
+            updateInventory();
+            startGame();
+        }
+
+        showTitleScreen();
     </script>
 </body>
 </html>
