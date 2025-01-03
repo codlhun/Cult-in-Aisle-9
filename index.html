@@ -3,71 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cult in Aisle 9</title>
+    <title>Cashier Game</title>
     <style>
         /* General Styles */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #1a1a1a;
+            background-color: black;
             color: #e0e0e0;
             margin: 0;
             padding: 0;
         }
 
-        #title-screen, #clock-in, #game-container {
+        #pre-screen, #title-screen, #clock-in, #game-container {
             display: none;
-        }
-
-        #title-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: black;
-            display: flex;
+            z-index: 10;
             align-items: center;
             justify-content: center;
-            z-index: 10;
+            background-color: black;
         }
 
-        #title-screen img {
+        #pre-screen img, #title-screen img {
             max-width: 100%;
             max-height: 100%;
         }
 
         #clock-in {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('cashier.jpg') no-repeat center center;
-            background-size: cover;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            background: url('cashier.jpg') no-repeat center center;
+            background-size: cover;
             z-index: 9;
         }
 
-        #clock-in h1 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: #ff6f61;
-            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
-        }
-
         #game-container {
-            max-width: 900px;
-            margin: 20px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             background: url('cashier.jpg') no-repeat center center;
             background-size: cover;
-            border-radius: 10px;
-            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.5);
+            z-index: 9;
             padding: 20px;
+        }
+
+        #game-text {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 10px 20px;
+            color: white;
+            font-size: 1rem;
+            width: 80%;
             text-align: center;
-            color: white; /* Ensure text is readable on the background */
+            margin-bottom: 20px;
+        }
+
+        .customer-card, #inventory, #choices button {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 10px 0;
+            color: white;
+            width: 80%;
+            text-align: center;
         }
 
         h1 {
@@ -94,163 +98,54 @@
     </style>
 </head>
 <body>
-    <!-- Title Screen -->
+    <div id="pre-screen">
+        <img src="DomCo.png" alt="DomCo Logo">
+    </div>
+
     <div id="title-screen">
-        <img src="cult.jpg" alt="Cult in Aisle 9">
+        <h1>Cashier Game</h1>
+        <button onclick="showClockIn()">Start</button>
     </div>
 
-    <!-- Clock In Screen -->
     <div id="clock-in">
-        <h1>It's 5pm - Time to Clock In!</h1>
-        <button onclick="clockIn()">Clock In</button>
+        <h1>Clock In</h1>
+        <button onclick="startGame()">Clock In</button>
     </div>
 
-    <!-- Game Container -->
     <div id="game-container">
-        <h1>Cult in Aisle 9</h1>
-        <div id="inventory">
-            <div>Suspicious Customers Spotted: <span id="suspicious-items">0</span>/3</div>
-            <div>Score: <span id="score">0</span></div>
+        <div id="game-text">Welcome to the Cashier Game! Serve the customers quickly and accurately.</div>
+        <div class="customer-card">Customer Order: Milk, Bread, Eggs</div>
+        <div id="inventory">Inventory: Milk, Bread, Eggs, Cheese</div>
+        <div id="choices">
+            <button onclick="serveCustomer()">Serve Customer</button>
         </div>
-        <div id="game-text">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
-        <div class="customer-card" id="customer-card">
-            <div id="customer-name">--</div>
-            <div id="customer-items">--</div>
-        </div>
-        <div id="choices"></div>
     </div>
 
     <script>
-        const gameState = {
-            customersServed: 0,
-            suspiciousItems: 0,
-            score: 0,
-            maxCustomers: 10,
-            maxSuspicious: 3,
-            customers: [
-                { name: "John", items: ["Hammer", "Nails"], suspicious: false },
-                { name: "Martha", items: ["Flashlight", "Batteries"], suspicious: false },
-                { name: "Rick", items: ["Rope", "Duct Tape"], suspicious: true },
-                { name: "Officer Mills", items: ["Coffee", "Donut"], suspicious: false },
-                { name: "Cloaked Figure", items: ["Candles", "Shovel"], suspicious: true },
-                { name: "Sarah", items: ["Chainsaw Oil"], suspicious: true },
-                { name: "Ted", items: ["Lawn Mower Parts"], suspicious: false },
-                { name: "Lucy", items: ["Paint", "Brushes"], suspicious: false },
-                { name: "Carl", items: ["Gasoline"], suspicious: true },
-                { name: "Tom", items: ["Garden Hose"], suspicious: false }
-            ]
-        };
-
-        const titleScreen = document.getElementById('title-screen');
-        const clockInScreen = document.getElementById('clock-in');
-        const gameContainer = document.getElementById('game-container');
-        const gameText = document.getElementById('game-text');
-        const customerCard = document.getElementById('customer-card');
-        const customerName = document.getElementById('customer-name');
-        const customerItems = document.getElementById('customer-items');
-        const choicesDiv = document.getElementById('choices');
-        const inventorySuspicious = document.getElementById('suspicious-items');
-        const scoreElement = document.getElementById('score');
-
-        function showTitleScreen() {
-            titleScreen.style.display = 'flex';
+        function showPreScreen() {
+            document.getElementById('pre-screen').style.display = 'flex';
             setTimeout(() => {
-                titleScreen.style.display = 'none';
-                clockInScreen.style.display = 'flex';
-            }, 5000);
+                document.getElementById('pre-screen').style.display = 'none';
+                document.getElementById('title-screen').style.display = 'flex';
+            }, 5000); // Show pre-screen for 5 seconds
         }
 
-        function clockIn() {
-            clockInScreen.style.display = 'none';
-            gameContainer.style.display = 'block';
-            startGame();
+        function showClockIn() {
+            document.getElementById('title-screen').style.display = 'none';
+            document.getElementById('clock-in').style.display = 'flex';
         }
 
         function startGame() {
-            gameState.customers = shuffle([...gameState.customers]);
-            showNextCustomer();
+            document.getElementById('clock-in').style.display = 'none';
+            document.getElementById('game-container').style.display = 'flex';
         }
 
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+        function serveCustomer() {
+            alert('Customer served!');
         }
 
-        function showNextCustomer() {
-            if (gameState.customersServed >= gameState.maxCustomers) {
-                endGame();
-                return;
-            }
-
-            if (gameState.suspiciousItems >= gameState.maxSuspicious) {
-                gameText.innerText = "You spotted 3 suspicious customers! You've stopped the cult's plans!";
-                choicesDiv.innerHTML = `<button onclick="restartGame()">Restart Game</button>`;
-                return;
-            }
-
-            const customer = gameState.customers[gameState.customersServed];
-            customerName.innerText = customer.name;
-            customerItems.innerText = `Items: ${customer.items.join(", ")}`;
-            gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
-
-            choicesDiv.innerHTML = `
-                <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
-                <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
-            `;
-        }
-
-        function serveCustomer(index) {
-            const customer = gameState.customers[index];
-            if (customer.suspicious) {
-                gameText.innerText = `${customer.name} leaves with a chilling smirk. You feel uneasy.`;
-            } else {
-                gameState.score += 10;
-                gameText.innerText = `${customer.name} thanks you and leaves.`;
-            }
-
-            gameState.customersServed++;
-            updateInventory();
-            setTimeout(showNextCustomer, 2000);
-        }
-
-        function reportCustomer(index) {
-            const customer = gameState.customers[index];
-            if (customer.suspicious) {
-                gameState.suspiciousItems++;
-                gameState.score += 50;
-                gameText.innerText = `You reported ${customer.name}. Security intervenes and detains them.`;
-            } else {
-                gameState.score -= 20;
-                gameText.innerText = `${customer.name} was innocent. You feel guilty for accusing them.`;
-            }
-
-            gameState.customersServed++;
-            updateInventory();
-            setTimeout(showNextCustomer, 2000);
-        }
-
-        function updateInventory() {
-            inventorySuspicious.innerText = gameState.suspiciousItems;
-            scoreElement.innerText = gameState.score;
-        }
-
-        function endGame() {
-            gameText.innerText = "Your shift ends. Did you stop the cult's plans?";
-            choicesDiv.innerHTML = `<button onclick="restartGame()">Restart Game</button>`;
-        }
-
-        function restartGame() {
-            gameState.customersServed = 0;
-            gameState.suspiciousItems = 0;
-            gameState.score = 0;
-            updateInventory();
-            startGame();
-        }
-
-        showTitleScreen();
+        // Show the pre-screen on page load
+        window.onload = showPreScreen;
     </script>
 </body>
 </html>
