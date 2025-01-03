@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cult in Aisle 9</title>
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+        }
+
+        #game-container {
+            max-width: 900px;
+            margin: 20px auto;
+            background: linear-gradient(135deg, #292929, #1a1a1a);
+            border-radius: 10px;
+            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            color: #ff6f61;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+        }
+
+        #game-text {
+            font-size: 1.2rem;
+            margin: 20px 0;
+        }
+
+        #inventory {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            background-color: #333;
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        #inventory div {
+            color: #e0e0e0;
+            font-weight: bold;
+        }
+
+        button {
+            background: #ff6f61;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin: 10px 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            background: #e65550;
+        }
+
+        /* Customer Card */
+        .customer-card {
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #444;
+            border-radius: 10px;
+            box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            color: white;
+        }
+
+        .customer-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: #292929;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #ff6f61;
+        }
+
+        .customer-name {
+            font-size: 1.5rem;
+            margin: 10px 0;
+        }
+
+        .customer-items {
+            font-size: 1rem;
+            color: #cfcfcf;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Cult in Aisle 9</h1>
+        <div id="inventory">
+            <div>Suspicious Customers Spotted: <span id="suspicious-items">0</span>/3</div>
+            <div>Score: <span id="score">0</span></div>
+        </div>
+        <div id="game-text">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
+        <div class="customer-card" id="customer-card">
+            <div class="customer-image" id="customer-image">🛒</div>
+            <div class="customer-name" id="customer-name">--</div>
+            <div class="customer-items" id="customer-items">--</div>
+        </div>
+        <div id="choices"></div>
+    </div>
+    <script>
+        const gameState = {
+            customersServed: 0,
+            suspiciousItems: 0,
+            score: 0,
+            maxCustomers: 10,
+            maxSuspicious: 3,
+            customers: [
+                { name: "John", items: ["Hammer", "Nails"], emoji: "🛠️", suspicious: false },
+                { name: "Martha", items: ["Flashlight", "Batteries"], emoji: "🔦", suspicious: false },
+                { name: "Rick", items: ["Rope", "Duct Tape"], emoji: "🧵", suspicious: true },
+                { name: "Officer Mills", items: ["Coffee", "Donut"], emoji: "☕", suspicious: false },
+                { name: "Cloaked Figure", items: ["Candles", "Shovel"], emoji: "🕯️", suspicious: true },
+                { name: "Sarah", items: ["Chainsaw Oil"], emoji: "🪚", suspicious: true },
+                { name: "Ted", items: ["Lawn Mower Parts"], emoji: "🌱", suspicious: false },
+                { name: "Lucy", items: ["Paint", "Brushes"], emoji: "🎨", suspicious: false },
+                { name: "Carl", items: ["Gasoline"], emoji: "⛽", suspicious: true },
+                { name: "Tom", items: ["Garden Hose"], emoji: "🌊", suspicious: false }
+            ]
+        };
+
+        const gameText = document.getElementById('game-text');
+        const inventorySuspicious = document.getElementById('suspicious-items');
+        const scoreElement = document.getElementById('score');
+        const customerImage = document.getElementById('customer-image');
+        const customerName = document.getElementById('customer-name');
+        const customerItems = document.getElementById('customer-items');
+        const choicesDiv = document.getElementById('choices');
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startGame() {
+            gameState.customers = shuffle([...gameState.customers]).slice(0, gameState.maxCustomers);
+            gameText.innerText = "Your shift begins. Customers will arrive shortly.";
+            showNextCustomer();
+        }
+
+        function showNextCustomer() {
+            if (gameState.customersServed >= gameState.customers.length) {
+                endGame();
+                return;
+            }
+
+            if (gameState.suspiciousItems >= gameState.maxSuspicious) {
+                gameText.innerText = "You spotted 3 suspicious customers! You've stopped the cult's plans!";
+                choicesDiv.innerHTML = `<button onclick="restartGame()">Restart Game</button>`;
+                return;
+            }
+
+            const customer = gameState.customers[gameState.customersServed];
+            customerImage.textContent = customer.emoji;
+            customerName.textContent = customer.name;
+            customerItems.textContent = `Items: ${customer.items.join(", ")}`;
+            gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
+
+            choicesDiv.innerHTML = `
+                <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
+                <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
+            `;
+        }
+
+        function serveCustomer(index) {
+            const customer = gameState.customers[index];
+            if (customer.suspicious) {
+                gameText.innerText = `${customer.name} leaves with a chilling smirk. You feel uneasy.`;
+            } else {
+                gameState.score += 10;
+                gameText.innerText = `${customer.name} thanks you and leaves.`;
+            }
+
+            gameState.customersServed++;
+            updateInventory();
+            setTimeout(showNextCustomer, 2000);
+        }
+
+        function reportCustomer(index) {
+            const customer = gameState.customers[index];
+            if (customer.suspicious) {
+                gameState.suspiciousItems++;
+                gameState.score += 50;
+                gameText.innerText = `You reported ${customer.name}. Security intervenes and detains them.`;
+            } else {
+                gameState.score -= 20;
+                gameText.innerText = `${customer.name} was innocent. You feel guilty for accusing them.`;
+            }
+
+            gameState.customersServed++;
+            updateInventory();
+            setTimeout(showNextCustomer, 2000);
+        }
+
+        function updateInventory() {
+            inventorySuspicious.innerText = gameState.suspiciousItems;
+            scoreElement.innerText = gameState.score;
+        }
+
+        function endGame() {
+            gameText.innerText = "Your shift ends. Did you stop the cult's plans?";
+            choicesDiv.innerHTML = `<button onclick="restartGame()">Restart Game</button>`;
+        }
+
+        function restartGame() {
+            gameState.customersServed = 0;
+            gameState.suspiciousItems = 0;
+            gameState.score = 0;
+            updateInventory();
+            startGame();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>
