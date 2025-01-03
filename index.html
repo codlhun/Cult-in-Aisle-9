@@ -61,16 +61,13 @@
         #game-container {
             max-width: 900px;
             margin: 20px auto;
-            background: linear-gradient(135deg, #292929, #1a1a1a);
+            background: url('cashier.jpg') no-repeat center center;
+            background-size: cover;
             border-radius: 10px;
             box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.5);
             padding: 20px;
             text-align: center;
-        }
-
-        #game-container.with-background {
-            background: url('cashier.jpg') no-repeat center center;
-            background-size: cover;
+            color: white; /* Ensure text is readable on the background */
         }
 
         h1 {
@@ -206,7 +203,6 @@
         }
 
         function serveCustomer(index) {
-            toggleBackground(true);
             const customer = gameState.customers[index];
             if (customer.suspicious) {
                 gameText.innerText = `${customer.name} leaves with a chilling smirk. You feel uneasy.`;
@@ -217,14 +213,10 @@
 
             gameState.customersServed++;
             updateInventory();
-            setTimeout(() => {
-                toggleBackground(false);
-                showNextCustomer();
-            }, 2000);
+            setTimeout(showNextCustomer, 2000);
         }
 
         function reportCustomer(index) {
-            toggleBackground(true);
             const customer = gameState.customers[index];
             if (customer.suspicious) {
                 gameState.suspiciousItems++;
@@ -237,18 +229,7 @@
 
             gameState.customersServed++;
             updateInventory();
-            setTimeout(() => {
-                toggleBackground(false);
-                showNextCustomer();
-            }, 2000);
-        }
-
-        function toggleBackground(show) {
-            if (show) {
-                gameContainer.classList.add('with-background');
-            } else {
-                gameContainer.classList.remove('with-background');
-            }
+            setTimeout(showNextCustomer, 2000);
         }
 
         function updateInventory() {
