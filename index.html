@@ -144,7 +144,66 @@
             ]
         };
 
+        const titleScreen = document.getElementById('title-screen');
+        const clockInScreen = document.getElementById('clock-in');
         const gameContainer = document.getElementById('game-container');
+        const gameText = document.getElementById('game-text');
+        const customerCard = document.getElementById('customer-card');
+        const customerName = document.getElementById('customer-name');
+        const customerItems = document.getElementById('customer-items');
+        const choicesDiv = document.getElementById('choices');
+        const inventorySuspicious = document.getElementById('suspicious-items');
+        const scoreElement = document.getElementById('score');
+
+        function showTitleScreen() {
+            titleScreen.style.display = 'flex';
+            setTimeout(() => {
+                titleScreen.style.display = 'none';
+                clockInScreen.style.display = 'flex';
+            }, 5000);
+        }
+
+        function clockIn() {
+            clockInScreen.style.display = 'none';
+            gameContainer.style.display = 'block';
+            startGame();
+        }
+
+        function startGame() {
+            gameState.customers = shuffle([...gameState.customers]);
+            showNextCustomer();
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function showNextCustomer() {
+            if (gameState.customersServed >= gameState.maxCustomers) {
+                endGame();
+                return;
+            }
+
+            if (gameState.suspiciousItems >= gameState.maxSuspicious) {
+                gameText.innerText = "You spotted 3 suspicious customers! You've stopped the cult's plans!";
+                choicesDiv.innerHTML = `<button onclick="restartGame()">Restart Game</button>`;
+                return;
+            }
+
+            const customer = gameState.customers[gameState.customersServed];
+            customerName.innerText = customer.name;
+            customerItems.innerText = `Items: ${customer.items.join(", ")}`;
+            gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
+
+            choicesDiv.innerHTML = `
+                <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
+                <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
+            `;
+        }
 
         function serveCustomer(index) {
             toggleBackground(true);
@@ -192,7 +251,25 @@
             }
         }
 
-        // Rest of the game logic...
+        function updateInventory() {
+            inventorySuspicious.innerText = gameState.suspiciousItems;
+            scoreElement.innerText = gameState.score;
+        }
+
+        function endGame() {
+            gameText.innerText = "Your shift ends. Did you stop the cult's plans?";
+            choicesDiv.innerHTML = `<button onclick="restartGame()">Restart Game</button>`;
+        }
+
+        function restartGame() {
+            gameState.customersServed = 0;
+            gameState.suspiciousItems = 0;
+            gameState.score = 0;
+            updateInventory();
+            startGame();
+        }
+
+        showTitleScreen();
     </script>
 </body>
 </html>
