@@ -33,7 +33,7 @@
             background-size: cover;
             background-position: center;
             text-align: center;
-            color: #000;
+            color: white;
         }
         .customer-card {
             border: 1px solid #ccc;
@@ -45,8 +45,36 @@
         #choices button {
             margin: 5px;
         }
+        #choices button:first-of-type {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #choices button:last-of-type {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
         .with-background {
             background-color: #f8d7da;
+        }
+        .text-box {
+            background-color: black;
+            color: white;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 5px;
+            display: inline-block;
+            width: 90%;
+            max-width: 600px;
+            text-align: left;
+        }
+        .text-box div {
+            margin-bottom: 10px;
         }
     </style>
 </head>
@@ -63,17 +91,18 @@
 
     <!-- Game Container -->
     <div id="game-container">
-        <h1>Cult in Aisle 9</h1>
-        <div id="inventory">
-            <div>Suspicious Customers Spotted: <span id="suspicious-items">0</span>/3</div>
-            <div>Score: <span id="score">0</span></div>
+        <div class="text-box">
+            <div id="inventory">
+                <div>Suspicious Customers Spotted: <span id="suspicious-items">0</span>/3</div>
+                <div>Score: <span id="score">0</span></div>
+            </div>
+            <div id="game-text">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
+            <div class="customer-card" id="customer-card">
+                <div id="customer-name">--</div>
+                <div id="customer-items">--</div>
+            </div>
+            <div id="choices"></div>
         </div>
-        <div id="game-text">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
-        <div class="customer-card" id="customer-card">
-            <div id="customer-name">--</div>
-            <div id="customer-items">--</div>
-        </div>
-        <div id="choices"></div>
     </div>
 
     <script>
