@@ -5,125 +5,118 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cult in Aisle 9</title>
     <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+        #startup-screen, #title-screen, #game-container {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+        }
+        #startup-screen img, #title-screen img {
+            max-width: 100%;
+            max-height: 100%;
+        }
         #game-container {
             font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
             background-image: url('cashier.jpg');
             background-size: cover;
             background-position: center;
-            padding: 20px;
+            text-align: center;
+            color: white;
         }
-
         .customer-card {
             border: 1px solid #ccc;
             padding: 10px;
             margin: 10px;
             display: inline-block;
+            background: rgba(255, 255, 255, 0.8); /* Textbox background */
         }
-
         #choices button {
             margin: 5px;
         }
-
-        .with-background {
-            background-color: #f8d7da;
-        }
-
-        .text-box {
-            background-color: black;
-            color: white;
-            padding: 20px;
-            margin: 20px auto;
-            border-radius: 5px;
-            width: 60%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        #choices button:nth-child(1) {
+        #choices button:first-of-type {
             background-color: green;
             color: white;
             border: none;
             padding: 10px 20px;
             cursor: pointer;
-            font-size: 16px;
         }
-
-        #choices button:nth-child(2) {
+        #choices button:last-of-type {
             background-color: red;
             color: white;
             border: none;
             padding: 10px 20px;
             cursor: pointer;
-            font-size: 16px;
         }
-
-        #title-screen {
-            display: none;
-            text-align: center;
-            background-image: url('cult.jpg');
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
-            color: white;
-            font-size: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .with-background {
+            background-color: #f8d7da;
         }
+        .text-box {
+    background-color: black; /* Black background */
+    color: white; /* White text */
+    padding: 20px; /* Padding inside the box */
+    margin: 20px auto; /* Center the box horizontally */
+    border-radius: 5px; /* Rounded corners */
+    width: 60%; /* Reduce the width */
+    max-width: 400px; /* Limit the maximum width */
+    text-align: center; /* Center the text inside the box */
+}
 
-        #logo-screen {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-image: url('DomCo.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            height: 100vh;
         }
-
-        #clock-in-screen {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        #clock-in-screen button {
-            padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
+        .text-box div {
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <div id="logo-screen"></div>
-
-    <div id="title-screen">
-        Cult in Aisle 9
+    <!-- Startup Screen -->
+    <div id="startup-screen">
+        <img src="DomCo.png" alt="DomCo Logo">
     </div>
 
-    <div id="clock-in-screen">
-        <h1>It's 5pm, Time to Clock In for Your Shift!</h1>
-        <button onclick="startGameplay()">Clock In</button>
+    <!-- Title Screen -->
+    <div id="title-screen">
+        <img src="cult.jpg" alt="Cult Title Screen">
     </div>
 
     <!-- Game Container -->
-    <div id="game-container" style="display: none;">
-        <div id="inventory" class="text-box">
-            <div>Suspicious Customers Spotted: <span id="suspicious-items">0</span>/3</div>
-            <div>Score: <span id="score">0</span></div>
+    <div id="game-container">
+        <div class="text-box">
+            <div id="inventory">
+                <div>Suspicious Customers Spotted: <span id="suspicious-items">0</span>/3</div>
+                <div>Score: <span id="score">0</span></div>
+            </div>
+            <div id="game-text">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
+            <div class="customer-card" id="customer-card">
+                <div id="customer-name">--</div>
+                <div id="customer-items">--</div>
+            </div>
+            <div id="choices"></div>
         </div>
-        <div id="game-text" class="text-box">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
-        <div class="customer-card" id="customer-card">
-            <div id="customer-name">--</div>
-            <div id="customer-items">--</div>
-        </div>
-        <div id="choices"></div>
     </div>
 
     <script>
+        const startupScreen = document.getElementById('startup-screen');
+        const titleScreen = document.getElementById('title-screen');
+        const gameContainer = document.getElementById('game-container');
+        const gameText = document.getElementById('game-text');
+        const customerName = document.getElementById('customer-name');
+        const customerItems = document.getElementById('customer-items');
+        const choicesDiv = document.getElementById('choices');
+        const inventorySuspicious = document.getElementById('suspicious-items');
+        const scoreElement = document.getElementById('score');
+
         const gameState = {
             customersServed: 0,
             suspiciousItems: 0,
@@ -144,36 +137,26 @@
             ]
         };
 
-        const gameContainer = document.getElementById('game-container');
-        const gameText = document.getElementById('game-text');
-        const customerName = document.getElementById('customer-name');
-        const customerItems = document.getElementById('customer-items');
-        const choicesDiv = document.getElementById('choices');
-        const inventorySuspicious = document.getElementById('suspicious-items');
-        const scoreElement = document.getElementById('score');
-
         function startGame() {
-            document.getElementById('logo-screen').style.display = 'none';
-            document.getElementById('title-screen').style.display = 'flex';
-            setTimeout(showClockInScreen, 5000);
-        }
-
-        function showClockInScreen() {
-            const cultScreen = document.getElementById('title-screen');
-            const clockInScreen = document.getElementById('clock-in-screen');
-
-            cultScreen.style.display = 'none'; // Hide the title screen
-            clockInScreen.style.display = 'block'; // Show the clock-in screen
-        }
-
-        function startGameplay() {
-            const clockInScreen = document.getElementById('clock-in-screen');
-            const gameContainer = document.getElementById('game-container');
-
-            clockInScreen.style.display = 'none'; // Hide the clock-in screen
-            gameContainer.style.display = 'block'; // Show the gameplay section
+            gameContainer.style.display = 'block';
             gameState.customers = shuffle([...gameState.customers]);
             showNextCustomer();
+        }
+
+        function showStartupScreen() {
+            startupScreen.style.display = 'block';
+            setTimeout(() => {
+                startupScreen.style.display = 'none';
+                showTitleScreen();
+            }, 5000);
+        }
+
+        function showTitleScreen() {
+            titleScreen.style.display = 'block';
+            setTimeout(() => {
+                titleScreen.style.display = 'none';
+                startGame();
+            }, 5000);
         }
 
         function shuffle(array) {
@@ -271,8 +254,8 @@
             startGame();
         }
 
-        // Start the game when the page loads
-        window.onload = startGame;
+        // Initialize the game sequence
+        window.onload = showStartupScreen;
     </script>
 </body>
 </html>
