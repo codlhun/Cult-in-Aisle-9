@@ -170,28 +170,32 @@
             return array;
         }
 
-        function showNextCustomer() {
-            if (gameState.customersServed >= gameState.maxCustomers) {
-                endGame();
-                return;
-            }
+       function showNextCustomer() {
+    if (gameState.customersServed >= gameState.maxCustomers) {
+        endGame();
+        return;
+    }
 
-            if (gameState.suspiciousItems >= gameState.maxSuspicious) {
-                gameText.innerText = "You spotted 3 suspicious customers! You've stopped the cult's plans!";
-                choicesDiv.innerHTML = '<button onclick="restartGame()">Restart Game</button>';
-                return;
-            }
+    if (gameState.suspiciousItems >= gameState.maxSuspicious) {
+        gameText.innerText = "You spotted 3 suspicious customers! You've stopped the cult's plans!";
+        choicesDiv.innerHTML = '<button onclick="restartGame()">Restart Game</button>';
+        return;
+    }
 
-            const customer = gameState.customers[gameState.customersServed];
-            customerName.innerText = customer.name;
-            customerItems.innerText = `Items: ${customer.items.join(", ")}`;
-            gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
+    const customer = gameState.customers[gameState.customersServed];
+    customerName.innerText = customer.name;
+    customerItems.innerText = `Items: ${customer.items.join(", ")}`;
+    document.getElementById('customer-image').src = customer.image;
+    document.getElementById('customer-image').alt = customer.name;
 
-            choicesDiv.innerHTML = `
-                <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
-                <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
-            `;
-        }
+    gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
+
+    choicesDiv.innerHTML = `
+        <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
+        <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
+    `;
+}
+
 
         function serveCustomer(index) {
             toggleBackground(true);
