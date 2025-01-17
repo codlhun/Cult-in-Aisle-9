@@ -1,74 +1,179 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suspicious Customer Game</title>
+    <title>Cult in Aisle 9</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: white;
-            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: black;
+        }
+        #startup-screen, #title-screen, #game-container, #cult-escape {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             text-align: center;
         }
-
+        #startup-screen img, #title-screen img {
+            max-width: 100%;
+            max-height: 100%;
+        }
         #game-container {
-            margin: 20px;
+            font-family: Arial, sans-serif;
+            background-image: url('cashier.jpg');
+            background-size: cover;
+            background-position: center;
+            text-align: center;
+            color: white;
         }
-
-        #game-text {
-            margin: 20px;
-            font-size: 18px;
+        .customer-card {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.8);
         }
-
-        #choices {
-            margin: 20px;
-        }
-
-        button {
+        #choices button {
             margin: 5px;
-            padding: 10px 20px;
-            font-size: 16px;
         }
-
-        #customer-image {
-            width: 200px;
-            height: auto;
-            margin: 20px;
+        #choices button:first-of-type {
+            background-color: green;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        #choices button:last-of-type {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .with-background {
+            background-color: #f8d7da;
+        }
+        .text-box {
+            background-color: black;
+            color: white;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 5px;
+            width: 60%;
+            max-width: 400px;
+            text-align: center;
+        }
+        .text-box div {
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
+    <div id="startup-screen">
+        <img src="DomCo.png" alt="DomCo Logo">
+    </div>
+
+    <div id="title-screen">
+        <img src="cult.jpg" alt="Cult Title Screen">
+    </div>
+
     <div id="game-container">
-        <h1>Suspicious Customer Game</h1>
-        <p id="game-text">A customer approaches the counter.</p>
-        <img id="customer-image" src="" alt="Customer" style="display: none;">
-        <p id="customer-name"></p>
-        <p id="customer-items"></p>
-        <div id="choices"></div>
+        <div class="text-box">
+            <div id="inventory">
+                <div>Suspicious Customers Spotted: <span id="suspicious-items">0</span>/3</div>
+                <div>Score: <span id="score">0</span></div>
+            </div>
+            <div id="game-text">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
+            <div class="customer-card" id="customer-card">
+                <img id="customer-image" src="" alt="Customer Image" style="max-width: 100px; border-radius: 5px;">
+                <div id="customer-name">--</div>
+                <div id="customer-items">--</div>
+            </div>
+            <div id="choices"></div>
+        </div>
+    </div>
+
+    <div id="cult-escape">
+        <div class="text-box">
+            <div id="escape-text">The cult has been exposed! You must escape the store before they catch you!</div>
+            <div id="escape-choices">
+                <button onclick="chooseEscape('front')">Run to the front door</button>
+                <button onclick="chooseEscape('back')">Hide in the stockroom</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        const gameState = {
-            customers: [
-                { name: "Alice", items: ["hammer", "screwdriver"], image: "customer1.jpg", suspicious: false },
-                { name: "Bob", items: ["wrench", "duct tape"], image: "customer2.jpg", suspicious: true },
-                { name: "Charlie", items: ["chainsaw", "gasoline"], image: "customer3.jpg", suspicious: true },
-                { name: "Diana", items: ["rope", "mask"], image: "customer4.jpg", suspicious: true }
-            ],
-            customersServed: 0,
-            suspiciousItems: 0,
-            maxCustomers: 4,
-            maxSuspicious: 3
-        };
-
+        const startupScreen = document.getElementById('startup-screen');
+        const titleScreen = document.getElementById('title-screen');
         const gameContainer = document.getElementById('game-container');
+        const cultEscape = document.getElementById('cult-escape');
         const gameText = document.getElementById('game-text');
         const customerName = document.getElementById('customer-name');
         const customerItems = document.getElementById('customer-items');
         const choicesDiv = document.getElementById('choices');
+        const inventorySuspicious = document.getElementById('suspicious-items');
+        const scoreElement = document.getElementById('score');
+        const escapeText = document.getElementById('escape-text');
+        const escapeChoices = document.getElementById('escape-choices');
+
+        const gameState = {
+            customersServed: 0,
+            suspiciousItems: 0,
+            score: 0,
+            maxCustomers: 10,
+            maxSuspicious: 3,
+            customers: [
+                { name: "John", items: ["Hammer", "Nails"], suspicious: false, image: "john.jpg" },
+                { name: "Martha", items: ["Flashlight", "Batteries"], suspicious: false, image: "martha.jpg" },
+                { name: "Rick", items: ["Rope", "Duct Tape"], suspicious: true, image: "rick.jpg" },
+                { name: "Officer Mills", items: ["Coffee", "Donut"], suspicious: false, image: "officer mills.jpg" },
+                { name: "Cloaked Figure", items: ["Candles", "Shovel"], suspicious: true, image: "cloakedfigure.jpg" },
+                { name: "Sarah", items: ["Chainsaw Oil"], suspicious: true, image: "sarah.jpg" },
+                { name: "Ted", items: ["Lawn Mower Parts"], suspicious: false, image: "ted.jpg" },
+                { name: "Lucy", items: ["Paint", "Brushes"], suspicious: false, image: "lucy.jpg" },
+                { name: "Carl", items: ["Gasoline"], suspicious: true, image: "carl.jpg" },
+                { name: "Tom", items: ["Garden Hose"], suspicious: false, image: "tom.jpg" }
+            ]
+        };
+
+        function startGame() {
+            gameContainer.style.display = 'block';
+            gameState.customers = shuffle([...gameState.customers]);
+            showNextCustomer();
+        }
+
+        function showStartupScreen() {
+            startupScreen.style.display = 'block';
+            setTimeout(() => {
+                startupScreen.style.display = 'none';
+                showTitleScreen();
+            }, 5000);
+        }
+
+        function showTitleScreen() {
+            titleScreen.style.display = 'block';
+            setTimeout(() => {
+                titleScreen.style.display = 'none';
+                startGame();
+            }, 5000);
+        }
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
 
         function showNextCustomer() {
             if (gameState.customersServed >= gameState.maxCustomers) {
@@ -77,17 +182,15 @@
             }
 
             if (gameState.suspiciousItems >= gameState.maxSuspicious) {
-                initiateCultScene();
+                transitionToEscape();
                 return;
             }
 
             const customer = gameState.customers[gameState.customersServed];
             customerName.innerText = customer.name;
             customerItems.innerText = `Items: ${customer.items.join(", ")}`;
-            const customerImage = document.getElementById('customer-image');
-            customerImage.src = customer.image;
-            customerImage.alt = customer.name;
-            customerImage.style.display = 'block';
+            document.getElementById('customer-image').src = customer.image;
+            document.getElementById('customer-image').alt = customer.name;
 
             gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
 
@@ -98,51 +201,21 @@
         }
 
         function serveCustomer(index) {
+            const customer = gameState.customers[index];
+            if (customer.suspicious) {
+                gameText.innerText = `${customer.name} leaves with a chilling smirk. You feel uneasy.`;
+            } else {
+                gameState.score += 10;
+                gameText.innerText = `${customer.name} thanks you and leaves.`;
+            }
+
             gameState.customersServed++;
-            gameText.innerText = `You served ${gameState.customers[index].name}.`;
+            updateInventory();
             setTimeout(showNextCustomer, 2000);
         }
 
         function reportCustomer(index) {
-            if (gameState.customers[index].suspicious) {
+            const customer = gameState.customers[index];
+            if (customer.suspicious) {
                 gameState.suspiciousItems++;
-                gameText.innerText = `${gameState.customers[index].name} was suspicious and reported.`;
-            } else {
-                gameText.innerText = `${gameState.customers[index].name} was innocent. Be careful!`;
-            }
-            gameState.customersServed++;
-            setTimeout(showNextCustomer, 2000);
-        }
-
-        function endGame() {
-            gameText.innerText = "You have served all the customers. The game is over!";
-            choicesDiv.innerHTML = '<button onclick="restartGame()">Restart</button>';
-        }
-
-        function initiateCultScene() {
-            gameContainer.style.display = 'none';
-            document.body.style.backgroundColor = 'black';
-            gameText.innerText = "Oh no, the lights went out! The cult is trying to kill you!";
-            choicesDiv.innerHTML = '';
-
-            setTimeout(() => {
-                document.body.style.backgroundImage = "url('hardware1.jpg')";
-                document.body.style.backgroundSize = 'cover';
-                document.body.style.backgroundPosition = 'center';
-                gameText.innerText = "Now transferring to a new game: Escape the cult!";
-                choicesDiv.innerHTML = '<button onclick="startNewGame()">Start Escape Game</button>';
-            }, 3000);
-        }
-
-        function startNewGame() {
-            alert("The new game will begin here. Stay tuned for updates!");
-        }
-
-        function restartGame() {
-            location.reload();
-        }
-
-        showNextCustomer();
-    </script>
-</body>
-</html>
+                gameState.score += 50;
