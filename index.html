@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -31,7 +32,6 @@
             background-image: url('cashier.jpg');
             background-size: cover;
             background-position: center;
-            text-align: center;
             color: white;
         }
         .customer-card {
@@ -39,7 +39,7 @@
             padding: 10px;
             margin: 10px;
             display: inline-block;
-            background: rgba(255, 255, 255, 0.8); /* Textbox background */
+            background: rgba(255, 255, 255, 0.8);
         }
         #choices button {
             margin: 5px;
@@ -62,34 +62,24 @@
             background-color: #f8d7da;
         }
         .text-box {
-    background-color: black; /* Black background */
-    color: white; /* White text */
-    padding: 20px; /* Padding inside the box */
-    margin: 20px auto; /* Center the box horizontally */
-    border-radius: 5px; /* Rounded corners */
-    width: 60%; /* Reduce the width */
-    max-width: 400px; /* Limit the maximum width */
-    text-align: center; /* Center the text inside the box */
-}
-
-        }
-        .text-box div {
-            margin-bottom: 10px;
+            background-color: black;
+            color: white;
+            padding: 20px;
+            margin: 20px auto;
+            border-radius: 5px;
+            width: 60%;
+            max-width: 400px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
-    <!-- Startup Screen -->
     <div id="startup-screen">
         <img src="DomCo.png" alt="DomCo Logo">
     </div>
-
-    <!-- Title Screen -->
     <div id="title-screen">
         <img src="cult.jpg" alt="Cult Title Screen">
     </div>
-
-    <!-- Game Container -->
     <div id="game-container">
         <div class="text-box">
             <div id="inventory">
@@ -98,15 +88,13 @@
             </div>
             <div id="game-text">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
             <div class="customer-card" id="customer-card">
-            <img id="customer-image" src="" alt="Customer Image" style="max-width: 100px; border-radius: 5px;">
-            <div id="customer-name">--</div>
-            <div id="customer-items">--</div>
-    </div>
-
+                <img id="customer-image" src="" alt="Customer Image" style="max-width: 100px; border-radius: 5px;">
+                <div id="customer-name">--</div>
+                <div id="customer-items">--</div>
+            </div>
             <div id="choices"></div>
         </div>
     </div>
-
     <script>
         const startupScreen = document.getElementById('startup-screen');
         const titleScreen = document.getElementById('title-screen');
@@ -118,26 +106,25 @@
         const inventorySuspicious = document.getElementById('suspicious-items');
         const scoreElement = document.getElementById('score');
 
-       const gameState = {
-    customersServed: 0,
-    suspiciousItems: 0,
-    score: 0,
-    maxCustomers: 10,
-    maxSuspicious: 3,
-    customers: [
-        { name: "John", items: ["Hammer", "Nails"], suspicious: false, image: "john.jpg" },
-        { name: "Martha", items: ["Flashlight", "Batteries"], suspicious: false, image: "martha.jpg" },
-        { name: "Rick", items: ["Rope", "Duct Tape"], suspicious: true, image: "rick.jpg" },
-        { name: "Officer Mills", items: ["Coffee", "Donut"], suspicious: false, image: "officer mills.jpg" },
-        { name: "Cloaked Figure", items: ["Candles", "Shovel"], suspicious: true, image: "cloakedfigure.jpg" },
-        { name: "Sarah", items: ["Chainsaw Oil"], suspicious: true, image: "sarah.jpg" },
-        { name: "Ted", items: ["Lawn Mower Parts"], suspicious: false, image: "ted.jpg" },
-        { name: "Lucy", items: ["Paint", "Brushes"], suspicious: false, image: "lucy.jpg" },
-        { name: "Carl", items: ["Gasoline"], suspicious: true, image: "carl.jpg" },
-        { name: "Tom", items: ["Garden Hose"], suspicious: false, image: "tom.jpg" }
-    ]
-};
-
+        const gameState = {
+            customersServed: 0,
+            suspiciousItems: 0,
+            score: 0,
+            maxCustomers: 10,
+            maxSuspicious: 3,
+            customers: [
+                { name: "John", items: ["Hammer", "Nails"], suspicious: false, image: "john.jpg" },
+                { name: "Martha", items: ["Flashlight", "Batteries"], suspicious: false, image: "martha.jpg" },
+                { name: "Rick", items: ["Rope", "Duct Tape"], suspicious: true, image: "rick.jpg" },
+                { name: "Officer Mills", items: ["Coffee", "Donut"], suspicious: false, image: "officer mills.jpg" },
+                { name: "Cloaked Figure", items: ["Candles", "Shovel"], suspicious: true, image: "cloakedfigure.jpg" },
+                { name: "Sarah", items: ["Chainsaw Oil"], suspicious: true, image: "sarah.jpg" },
+                { name: "Ted", items: ["Lawn Mower Parts"], suspicious: false, image: "ted.jpg" },
+                { name: "Lucy", items: ["Paint", "Brushes"], suspicious: false, image: "lucy.jpg" },
+                { name: "Carl", items: ["Gasoline"], suspicious: true, image: "carl.jpg" },
+                { name: "Tom", items: ["Garden Hose"], suspicious: false, image: "tom.jpg" }
+            ]
+        };
 
         function startGame() {
             gameContainer.style.display = 'block';
@@ -169,41 +156,40 @@
             return array;
         }
 
-       function showNextCustomer() {
-    if (gameState.customersServed >= gameState.maxCustomers) {
-        endGame();
-        return;
-    }
+        function showNextCustomer() {
+            if (gameState.customersServed >= gameState.maxCustomers) {
+                endGame();
+                return;
+            }
 
-    if (gameState.suspiciousItems >= gameState.maxSuspicious) {
-        gameText.innerText = "You spotted 3 suspicious customers! You've stopped the cult's plans!";
-        choicesDiv.innerHTML = '<button onclick="restartGame()">Restart Game</button>';
-        return;
-    }
+            if (gameState.suspiciousItems >= gameState.maxSuspicious) {
+                gameText.innerText = "You spotted 3 suspicious customers! You've stopped the cult's plans!";
+                choicesDiv.innerHTML = '<button onclick="restartGame()">Restart Game</button>';
+                return;
+            }
 
-    const customer = gameState.customers[gameState.customersServed];
-    customerName.innerText = customer.name;
-    customerItems.innerText = Items: ${customer.items.join(", ")};
-    document.getElementById('customer-image').src = customer.image;
-    document.getElementById('customer-image').alt = customer.name;
+            const customer = gameState.customers[gameState.customersServed];
+            customerName.innerText = customer.name;
+            customerItems.innerText = `Items: ${customer.items.join(", ")}`;
+            document.getElementById('customer-image').src = customer.image;
+            document.getElementById('customer-image').alt = customer.name;
 
-    gameText.innerText = Customer ${gameState.customersServed + 1} approaches the counter.;
+            gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
 
-    choicesDiv.innerHTML = 
-        <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
-        <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
-    ;
-}
-
+            choicesDiv.innerHTML = `
+                <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
+                <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
+            `;
+        }
 
         function serveCustomer(index) {
             toggleBackground(true);
             const customer = gameState.customers[index];
             if (customer.suspicious) {
-                gameText.innerText = ${customer.name} leaves with a chilling smirk. You feel uneasy.;
+                gameText.innerText = `${customer.name} leaves with a chilling smirk. You feel uneasy.`;
             } else {
                 gameState.score += 10;
-                gameText.innerText = ${customer.name} thanks you and leaves.;
+                gameText.innerText = `${customer.name} thanks you and leaves.`;
             }
 
             gameState.customersServed++;
@@ -220,10 +206,10 @@
             if (customer.suspicious) {
                 gameState.suspiciousItems++;
                 gameState.score += 50;
-                gameText.innerText = You reported ${customer.name}. Security intervenes and detains them.;
+                gameText.innerText = `You reported ${customer.name}. Security intervenes and detains them.`;
             } else {
                 gameState.score -= 20;
-                gameText.innerText = ${customer.name} was innocent. You feel guilty for accusing them.;
+                gameText.innerText = `${customer.name} was innocent. You feel guilty for accusing them.`;
             }
 
             gameState.customersServed++;
@@ -260,7 +246,6 @@
             startGame();
         }
 
-        // Initialize the game sequence
         window.onload = showStartupScreen;
     </script>
 </body>
