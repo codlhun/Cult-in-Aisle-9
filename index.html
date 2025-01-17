@@ -3,36 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cult in Aisle 9</title>
+    <title>Point-and-Click Horror & Cult in Aisle 9</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
             margin: 0;
             padding: 0;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
             height: 100vh;
-            background-color: black;
-        }
-        #startup-screen, #title-screen, #game-container, #escape-stage {
-            display: none;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-        }
-        #startup-screen img, #title-screen img {
-            max-width: 100%;
-            max-height: 100%;
         }
         #game-container {
-            font-family: Arial, sans-serif;
-            background-image: url('cashier.jpg');
-            background-size: cover;
-            background-position: center;
+            width: 80%;
+            max-width: 800px;
+            text-align: center;
+            border: 2px solid white;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #111;
+        }
+        .room, #aisle9 {
+            display: none;
+        }
+        .room.active, #aisle9.active {
+            display: block;
+        }
+        .button {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px 20px;
             color: white;
+            background-color: #333;
+            border: 1px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #555;
+        }
+        .object {
+            color: #ccc;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .object:hover {
+            color: white;
+        }
+        #inventory {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid white;
+            border-radius: 5px;
+            background-color: #222;
+            text-align: left;
         }
         .customer-card {
             border: 1px solid #ccc;
@@ -58,9 +86,6 @@
             padding: 10px 20px;
             cursor: pointer;
         }
-        .with-background {
-            background-color: #f8d7da;
-        }
         .text-box {
             background-color: black;
             color: white;
@@ -71,48 +96,49 @@
             max-width: 400px;
             text-align: center;
         }
-        #escape-stage img {
-            max-width: 100%;
-            max-height: 80%;
-            margin: 20px 0;
-        }
-        .arrow {
-            position: absolute;
-            cursor: pointer;
-            font-size: 50px;
-            color: white;
-        }
-        .arrow.left {
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        .arrow.right {
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        .arrow.up {
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
     </style>
 </head>
 <body>
-    <div id="startup-screen">
-        <img src="DomCo.png" alt="DomCo Logo">
-    </div>
-    <div id="title-screen">
-        <img src="cult.jpg" alt="Cult Title Screen">
-    </div>
     <div id="game-container">
-        <div class="text-box">
-            <div id="inventory">
+        <!-- Point-and-Click Horror Game -->
+        <div id="room1" class="room active">
+            <h2>Dark Living Room</h2>
+            <p>The room is dimly lit. Shadows dance on the walls. A broken clock ticks loudly.</p>
+            <p>
+                <span class="object" onclick="showMessage('A dusty couch. Something seems to be moving underneath.')">Couch</span> |
+                <span class="object" onclick="findClue('clock', 'A note hidden behind the clock reads: 3-7-2.')">Clock</span>
+            </p>
+            <a class="button" onclick="goToRoom('room2')">Go to Kitchen</a>
+        </div>
+
+        <div id="room2" class="room">
+            <h2>Silent Kitchen</h2>
+            <p>The kitchen is eerily quiet. The smell of rotting food fills the air.</p>
+            <p>
+                <span class="object" onclick="findItem('knife', 'You pick up a sharp knife.')">Knife</span> |
+                <span class="object" onclick="showMessage('The fridge door is slightly ajar. A faint chill escapes.')">Fridge</span>
+            </p>
+            <a class="button" onclick="goToRoom('room1')">Go to Living Room</a>
+            <a class="button" onclick="goToRoom('room3')">Go to Basement</a>
+        </div>
+
+        <div id="room3" class="room">
+            <h2>Cold Basement</h2>
+            <p>The basement is damp and cold. You hear faint whispers in the darkness.</p>
+            <p>
+                <span class="object" onclick="tryUnlockChest()">Chest</span> |
+                <span class="object" onclick="showMessage('A mirror cracked in the middle. Your reflection looks... wrong.')">Mirror</span>
+            </p>
+            <a class="button" onclick="goToRoom('room2')">Go to Kitchen</a>
+        </div>
+
+        <!-- Cult in Aisle 9 -->
+        <div id="aisle9" class="room">
+            <h2>Cult in Aisle 9</h2>
+            <div class="text-box">
                 <div>Suspicious Customers Spotted: <span id="suspicious-items">0</span>/3</div>
                 <div>Score: <span id="score">0</span></div>
             </div>
-            <div id="game-text">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
             <div class="customer-card" id="customer-card">
                 <img id="customer-image" src="placeholder.jpg" alt="Customer Image" style="max-width: 100px; border-radius: 5px;">
                 <div id="customer-name">--</div>
@@ -121,79 +147,69 @@
             <div id="choices"></div>
         </div>
     </div>
-    <div id="escape-stage">
-        <div class="arrow left" onclick="navigateImage('left')">&#8592;</div>
-        <div class="arrow right" onclick="navigateImage('right')">&#8594;</div>
-        <div class="arrow up" onclick="navigateImage('up')">&#8593;</div>
-        <img id="escape-image" src="hardware1.jpg" alt="Escape Scene">
+
+    <div id="inventory">
+        <h3>Inventory</h3>
+        <ul id="inventory-list"></ul>
     </div>
+
     <script>
-        const startupScreen = document.getElementById('startup-screen');
-        const titleScreen = document.getElementById('title-screen');
-        const gameContainer = document.getElementById('game-container');
-        const escapeStage = document.getElementById('escape-stage');
-        const escapeImage = document.getElementById('escape-image');
-        const gameText = document.getElementById('game-text');
-        const customerName = document.getElementById('customer-name');
-        const customerItems = document.getElementById('customer-items');
-        const choicesDiv = document.getElementById('choices');
-        const inventorySuspicious = document.getElementById('suspicious-items');
-        const scoreElement = document.getElementById('score');
+        const inventory = [];
+        const clues = [];
+        const chestCode = "372";
 
-        const gameState = {
-            customersServed: 0,
-            suspiciousItems: 0,
-            score: 0,
-            maxCustomers: 10,
-            maxSuspicious: 3,
-            escapeImages: {
-                current: "hardware1.jpg",
-                left: "hardware1.jpg",
-                right: "hardware2.jpg",
-                up: "hardwareup.jpg"
-            }
-        };
-
-        function showStartupScreen() {
-            startupScreen.style.display = 'block';
-            setTimeout(() => {
-                startupScreen.style.display = 'none';
-                showTitleScreen();
-            }, 5000);
+        function goToRoom(roomId) {
+            document.querySelectorAll('.room').forEach(room => room.classList.remove('active'));
+            document.getElementById(roomId).classList.add('active');
         }
 
-        function showTitleScreen() {
-            titleScreen.style.display = 'block';
-            setTimeout(() => {
-                titleScreen.style.display = 'none';
-                startGame();
-            }, 5000);
+        function showMessage(message) {
+            alert(message);
         }
 
-        function startGame() {
-            gameContainer.style.display = 'block';
-        }
-
-        function endGame() {
-            gameContainer.style.display = 'none';
-            startEscapeStage();
-        }
-
-        function startEscapeStage() {
-            escapeStage.style.display = 'block';
-        }
-
-        function navigateImage(direction) {
-            if (direction === "left") {
-                escapeImage.src = gameState.escapeImages.left;
-            } else if (direction === "right") {
-                escapeImage.src = gameState.escapeImages.right;
-            } else if (direction === "up") {
-                escapeImage.src = gameState.escapeImages.up;
+        function findItem(item, message) {
+            if (!inventory.includes(item)) {
+                inventory.push(item);
+                updateInventory();
+                alert(message);
+            } else {
+                alert("You've already taken this item.");
             }
         }
 
-        window.onload = showStartupScreen;
+        function findClue(clue, message) {
+            if (!clues.includes(clue)) {
+                clues.push(clue);
+                alert(message);
+            } else {
+                alert("You've already found this clue.");
+            }
+        }
+
+        function tryUnlockChest() {
+            if (clues.includes("clock")) {
+                const userCode = prompt("Enter the code to unlock the chest:");
+                if (userCode === chestCode) {
+                    alert("The chest creaks open. Inside, you find a key to the front door!");
+                    inventory.push("key");
+                    updateInventory();
+                } else {
+                    alert("The code is incorrect.");
+                }
+            } else {
+                alert("The chest is locked. You need a clue to unlock it.");
+            }
+        }
+
+        function updateInventory() {
+            const inventoryList = document.getElementById("inventory-list");
+            inventoryList.innerHTML = "";
+            inventory.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = item;
+                inventoryList.appendChild(li);
+            });
+        }
     </script>
 </body>
 </html>
