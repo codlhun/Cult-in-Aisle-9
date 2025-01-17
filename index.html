@@ -15,7 +15,7 @@
         }
 
         #game-container {
-            display: none;
+            display: block;
         }
 
         #transition {
@@ -66,15 +66,13 @@
         const transition = document.getElementById('transition');
         const imageContainer = document.getElementById('image-container');
 
-        gameContainer.style.display = 'block';
-
         reportButton.addEventListener('click', () => {
             successCount++;
             successCountDisplay.textContent = `Successful Reports: ${successCount}`;
 
             if (successCount === 3) {
-                gameContainer.style.display = 'none';
                 transition.style.display = 'flex';
+                gameContainer.style.opacity = '0.2';
 
                 setTimeout(() => {
                     transition.style.display = 'none';
