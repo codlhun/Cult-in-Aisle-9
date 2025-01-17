@@ -114,7 +114,7 @@
             </div>
             <div id="game-text">Welcome to your night shift. Serve customers and report suspicious behavior.</div>
             <div class="customer-card" id="customer-card">
-                <img id="customer-image" src="" alt="Customer Image" style="max-width: 100px; border-radius: 5px;">
+                <img id="customer-image" src="placeholder.jpg" alt="Customer Image" style="max-width: 100px; border-radius: 5px;">
                 <div id="customer-name">--</div>
                 <div id="customer-items">--</div>
             </div>
@@ -154,12 +154,6 @@
             }
         };
 
-        function startGame() {
-            gameContainer.style.display = 'block';
-            gameState.customers = shuffle([...gameState.customers]);
-            showNextCustomer();
-        }
-
         function showStartupScreen() {
             startupScreen.style.display = 'block';
             setTimeout(() => {
@@ -176,12 +170,8 @@
             }, 5000);
         }
 
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+        function startGame() {
+            gameContainer.style.display = 'block';
         }
 
         function endGame() {
@@ -191,20 +181,6 @@
 
         function startEscapeStage() {
             escapeStage.style.display = 'block';
-            flickerImage();
-        }
-
-        function flickerImage() {
-            let visible = true;
-            const interval = setInterval(() => {
-                escapeImage.style.visibility = visible ? "hidden" : "visible";
-                visible = !visible;
-            }, 200);
-
-            setTimeout(() => {
-                clearInterval(interval);
-                escapeImage.style.visibility = "visible";
-            }, 3000); // Flicker for 3 seconds
         }
 
         function navigateImage(direction) {
