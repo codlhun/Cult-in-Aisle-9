@@ -14,7 +14,7 @@
             height: 100vh;
             background-color: black;
         }
-        #startup-screen, #title-screen, #game-container {
+        #startup-screen, #title-screen, #game-container, #escape-stage {
             display: none;
             position: absolute;
             top: 0;
@@ -71,6 +71,32 @@
             max-width: 400px;
             text-align: center;
         }
+        #escape-stage img {
+            max-width: 100%;
+            max-height: 80%;
+            margin: 20px 0;
+        }
+        .arrow {
+            position: absolute;
+            cursor: pointer;
+            font-size: 50px;
+            color: white;
+        }
+        .arrow.left {
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .arrow.right {
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .arrow.up {
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
     </style>
 </head>
 <body>
@@ -95,10 +121,18 @@
             <div id="choices"></div>
         </div>
     </div>
+    <div id="escape-stage">
+        <div class="arrow left" onclick="navigateImage('left')">&#8592;</div>
+        <div class="arrow right" onclick="navigateImage('right')">&#8594;</div>
+        <div class="arrow up" onclick="navigateImage('up')">&#8593;</div>
+        <img id="escape-image" src="hardware1.jpg" alt="Escape Scene">
+    </div>
     <script>
         const startupScreen = document.getElementById('startup-screen');
         const titleScreen = document.getElementById('title-screen');
         const gameContainer = document.getElementById('game-container');
+        const escapeStage = document.getElementById('escape-stage');
+        const escapeImage = document.getElementById('escape-image');
         const gameText = document.getElementById('game-text');
         const customerName = document.getElementById('customer-name');
         const customerItems = document.getElementById('customer-items');
@@ -112,18 +146,12 @@
             score: 0,
             maxCustomers: 10,
             maxSuspicious: 3,
-            customers: [
-                { name: "John", items: ["Hammer", "Nails"], suspicious: false, image: "john.jpg" },
-                { name: "Martha", items: ["Flashlight", "Batteries"], suspicious: false, image: "martha.jpg" },
-                { name: "Rick", items: ["Rope", "Duct Tape"], suspicious: true, image: "rick.jpg" },
-                { name: "Officer Mills", items: ["Coffee", "Donut"], suspicious: false, image: "officer mills.jpg" },
-                { name: "Cloaked Figure", items: ["Candles", "Shovel"], suspicious: true, image: "cloakedfigure.jpg" },
-                { name: "Sarah", items: ["Chainsaw Oil"], suspicious: true, image: "sarah.jpg" },
-                { name: "Ted", items: ["Lawn Mower Parts"], suspicious: false, image: "ted.jpg" },
-                { name: "Lucy", items: ["Paint", "Brushes"], suspicious: false, image: "lucy.jpg" },
-                { name: "Carl", items: ["Gasoline"], suspicious: true, image: "carl.jpg" },
-                { name: "Tom", items: ["Garden Hose"], suspicious: false, image: "tom.jpg" }
-            ]
+            escapeImages: {
+                current: "hardware1.jpg",
+                left: "hardware1.jpg",
+                right: "hardware2.jpg",
+                up: "hardwareup.jpg"
+            }
         };
 
         function startGame() {
@@ -156,94 +184,37 @@
             return array;
         }
 
-        function showNextCustomer() {
-            if (gameState.customersServed >= gameState.maxCustomers) {
-                endGame();
-                return;
-            }
-
-            if (gameState.suspiciousItems >= gameState.maxSuspicious) {
-                gameText.innerText = "You spotted 3 suspicious customers! You've stopped the cult's plans!";
-                choicesDiv.innerHTML = '<button onclick="restartGame()">Restart Game</button>';
-                return;
-            }
-
-            const customer = gameState.customers[gameState.customersServed];
-            customerName.innerText = customer.name;
-            customerItems.innerText = `Items: ${customer.items.join(", ")}`;
-            document.getElementById('customer-image').src = customer.image;
-            document.getElementById('customer-image').alt = customer.name;
-
-            gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
-
-            choicesDiv.innerHTML = `
-                <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
-                <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
-            `;
-        }
-
-        function serveCustomer(index) {
-            toggleBackground(true);
-            const customer = gameState.customers[index];
-            if (customer.suspicious) {
-                gameText.innerText = `${customer.name} leaves with a chilling smirk. You feel uneasy.`;
-            } else {
-                gameState.score += 10;
-                gameText.innerText = `${customer.name} thanks you and leaves.`;
-            }
-
-            gameState.customersServed++;
-            updateInventory();
-            setTimeout(() => {
-                toggleBackground(false);
-                showNextCustomer();
-            }, 2000);
-        }
-
-        function reportCustomer(index) {
-            toggleBackground(true);
-            const customer = gameState.customers[index];
-            if (customer.suspicious) {
-                gameState.suspiciousItems++;
-                gameState.score += 50;
-                gameText.innerText = `You reported ${customer.name}. Security intervenes and detains them.`;
-            } else {
-                gameState.score -= 20;
-                gameText.innerText = `${customer.name} was innocent. You feel guilty for accusing them.`;
-            }
-
-            gameState.customersServed++;
-            updateInventory();
-            setTimeout(() => {
-                toggleBackground(false);
-                showNextCustomer();
-            }, 2000);
-        }
-
-        function toggleBackground(show) {
-            if (show) {
-                gameContainer.classList.add('with-background');
-            } else {
-                gameContainer.classList.remove('with-background');
-            }
-        }
-
-        function updateInventory() {
-            inventorySuspicious.innerText = gameState.suspiciousItems;
-            scoreElement.innerText = gameState.score;
-        }
-
         function endGame() {
-            gameText.innerText = "Your shift ends. Did you stop the cult's plans?";
-            choicesDiv.innerHTML = '<button onclick="restartGame()">Restart Game</button>';
+            gameContainer.style.display = 'none';
+            startEscapeStage();
         }
 
-        function restartGame() {
-            gameState.customersServed = 0;
-            gameState.suspiciousItems = 0;
-            gameState.score = 0;
-            updateInventory();
-            startGame();
+        function startEscapeStage() {
+            escapeStage.style.display = 'block';
+            flickerImage();
+        }
+
+        function flickerImage() {
+            let visible = true;
+            const interval = setInterval(() => {
+                escapeImage.style.visibility = visible ? "hidden" : "visible";
+                visible = !visible;
+            }, 200);
+
+            setTimeout(() => {
+                clearInterval(interval);
+                escapeImage.style.visibility = "visible";
+            }, 3000); // Flicker for 3 seconds
+        }
+
+        function navigateImage(direction) {
+            if (direction === "left") {
+                escapeImage.src = gameState.escapeImages.left;
+            } else if (direction === "right") {
+                escapeImage.src = gameState.escapeImages.right;
+            } else if (direction === "up") {
+                escapeImage.src = gameState.escapeImages.up;
+            }
         }
 
         window.onload = showStartupScreen;
