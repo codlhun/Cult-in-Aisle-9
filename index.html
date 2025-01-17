@@ -1,47 +1,148 @@
-<script>
-    function showNextCustomer() {
-        if (gameState.customersServed >= gameState.maxCustomers) {
-            endGame();
-            return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suspicious Customer Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: white;
+            color: black;
+            text-align: center;
         }
 
-        if (gameState.suspiciousItems >= gameState.maxSuspicious) {
-            // Transition to the new part
-            initiateCultScene();
-            return;
+        #game-container {
+            margin: 20px;
         }
 
-        const customer = gameState.customers[gameState.customersServed];
-        customerName.innerText = customer.name;
-        customerItems.innerText = `Items: ${customer.items.join(", ")}`;
-        document.getElementById('customer-image').src = customer.image;
-        document.getElementById('customer-image').alt = customer.name;
+        #game-text {
+            margin: 20px;
+            font-size: 18px;
+        }
 
-        gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
+        #choices {
+            margin: 20px;
+        }
 
-        choicesDiv.innerHTML = `
-            <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
-            <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
-        `;
-    }
+        button {
+            margin: 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+        }
 
-    function initiateCultScene() {
-        gameContainer.style.display = 'none';
-        document.body.style.backgroundColor = 'black';
-        gameText.innerText = "Oh no, the lights went out! The cult is trying to kill you!";
-        choicesDiv.innerHTML = '';
+        #customer-image {
+            width: 200px;
+            height: auto;
+            margin: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Suspicious Customer Game</h1>
+        <p id="game-text">A customer approaches the counter.</p>
+        <img id="customer-image" src="" alt="Customer" style="display: none;">
+        <p id="customer-name"></p>
+        <p id="customer-items"></p>
+        <div id="choices"></div>
+    </div>
 
-        setTimeout(() => {
-            document.body.style.backgroundImage = "url('hardware1.jpg')";
-            document.body.style.backgroundSize = 'cover';
-            document.body.style.backgroundPosition = 'center';
-            gameText.innerText = "Now transferring to a new game: Escape the cult!";
-            choicesDiv.innerHTML = '<button onclick="startNewGame()">Start Escape Game</button>';
-        }, 3000);
-    }
+    <script>
+        const gameState = {
+            customers: [
+                { name: "Alice", items: ["hammer", "screwdriver"], image: "customer1.jpg", suspicious: false },
+                { name: "Bob", items: ["wrench", "duct tape"], image: "customer2.jpg", suspicious: true },
+                { name: "Charlie", items: ["chainsaw", "gasoline"], image: "customer3.jpg", suspicious: true },
+                { name: "Diana", items: ["rope", "mask"], image: "customer4.jpg", suspicious: true }
+            ],
+            customersServed: 0,
+            suspiciousItems: 0,
+            maxCustomers: 4,
+            maxSuspicious: 3
+        };
 
-    function startNewGame() {
-        // Placeholder for the new game logic
-        alert("The new game will begin here. Stay tuned for updates!");
-    }
-</script>
+        const gameContainer = document.getElementById('game-container');
+        const gameText = document.getElementById('game-text');
+        const customerName = document.getElementById('customer-name');
+        const customerItems = document.getElementById('customer-items');
+        const choicesDiv = document.getElementById('choices');
+
+        function showNextCustomer() {
+            if (gameState.customersServed >= gameState.maxCustomers) {
+                endGame();
+                return;
+            }
+
+            if (gameState.suspiciousItems >= gameState.maxSuspicious) {
+                initiateCultScene();
+                return;
+            }
+
+            const customer = gameState.customers[gameState.customersServed];
+            customerName.innerText = customer.name;
+            customerItems.innerText = `Items: ${customer.items.join(", ")}`;
+            const customerImage = document.getElementById('customer-image');
+            customerImage.src = customer.image;
+            customerImage.alt = customer.name;
+            customerImage.style.display = 'block';
+
+            gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
+
+            choicesDiv.innerHTML = `
+                <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
+                <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
+            `;
+        }
+
+        function serveCustomer(index) {
+            gameState.customersServed++;
+            gameText.innerText = `You served ${gameState.customers[index].name}.`;
+            setTimeout(showNextCustomer, 2000);
+        }
+
+        function reportCustomer(index) {
+            if (gameState.customers[index].suspicious) {
+                gameState.suspiciousItems++;
+                gameText.innerText = `${gameState.customers[index].name} was suspicious and reported.`;
+            } else {
+                gameText.innerText = `${gameState.customers[index].name} was innocent. Be careful!`;
+            }
+            gameState.customersServed++;
+            setTimeout(showNextCustomer, 2000);
+        }
+
+        function endGame() {
+            gameText.innerText = "You have served all the customers. The game is over!";
+            choicesDiv.innerHTML = '<button onclick="restartGame()">Restart</button>';
+        }
+
+        function initiateCultScene() {
+            gameContainer.style.display = 'none';
+            document.body.style.backgroundColor = 'black';
+            gameText.innerText = "Oh no, the lights went out! The cult is trying to kill you!";
+            choicesDiv.innerHTML = '';
+
+            setTimeout(() => {
+                document.body.style.backgroundImage = "url('hardware1.jpg')";
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundPosition = 'center';
+                gameText.innerText = "Now transferring to a new game: Escape the cult!";
+                choicesDiv.innerHTML = '<button onclick="startNewGame()">Start Escape Game</button>';
+            }, 3000);
+        }
+
+        function startNewGame() {
+            alert("The new game will begin here. Stay tuned for updates!");
+        }
+
+        function restartGame() {
+            location.reload();
+        }
+
+        showNextCustomer();
+    </script>
+</body>
+</html>
