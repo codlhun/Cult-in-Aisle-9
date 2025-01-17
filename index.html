@@ -1,91 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cult Escape Transition</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: white;
-            color: black;
-            text-align: center;
+<script>
+    function showNextCustomer() {
+        if (gameState.customersServed >= gameState.maxCustomers) {
+            endGame();
+            return;
         }
 
-        #game-container {
-            display: block;
+        if (gameState.suspiciousItems >= gameState.maxSuspicious) {
+            // Transition to the new part
+            initiateCultScene();
+            return;
         }
 
-        #transition {
-            display: none;
-            background-color: black;
-            color: white;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 24px;
-        }
+        const customer = gameState.customers[gameState.customersServed];
+        customerName.innerText = customer.name;
+        customerItems.innerText = `Items: ${customer.items.join(", ")}`;
+        document.getElementById('customer-image').src = customer.image;
+        document.getElementById('customer-image').alt = customer.name;
 
-        #image-container {
-            display: none;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: black;
-        }
+        gameText.innerText = `Customer ${gameState.customersServed + 1} approaches the counter.`;
 
-        #image-container img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-    </style>
-</head>
-<body>
-    <div id="game-container">
-        <h1>Customer Reporting Game</h1>
-        <p>Successfully report customers to progress.</p>
-        <button id="report-button">Report Customer</button>
-        <p id="success-count">Successful Reports: 0</p>
-    </div>
+        choicesDiv.innerHTML = `
+            <button onclick="serveCustomer(${gameState.customersServed})">Serve</button>
+            <button onclick="reportCustomer(${gameState.customersServed})">Report</button>
+        `;
+    }
 
-    <div id="transition">Oh no, the lights went out! The cult is going to try to kill you...</div>
+    function initiateCultScene() {
+        gameContainer.style.display = 'none';
+        document.body.style.backgroundColor = 'black';
+        gameText.innerText = "Oh no, the lights went out! The cult is trying to kill you!";
+        choicesDiv.innerHTML = '';
 
-    <div id="image-container">
-        <img src="hardware1.jpg" alt="Hardware Image">
-    </div>
+        setTimeout(() => {
+            document.body.style.backgroundImage = "url('hardware1.jpg')";
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundPosition = 'center';
+            gameText.innerText = "Now transferring to a new game: Escape the cult!";
+            choicesDiv.innerHTML = '<button onclick="startNewGame()">Start Escape Game</button>';
+        }, 3000);
+    }
 
-    <script>
-        let successCount = 0;
-        const reportButton = document.getElementById('report-button');
-        const successCountDisplay = document.getElementById('success-count');
-        const gameContainer = document.getElementById('game-container');
-        const transition = document.getElementById('transition');
-        const imageContainer = document.getElementById('image-container');
-
-        reportButton.addEventListener('click', () => {
-            successCount++;
-            successCountDisplay.textContent = `Successful Reports: ${successCount}`;
-
-            if (successCount === 3) {
-                transition.style.display = 'flex';
-                gameContainer.style.opacity = '0.2';
-
-                setTimeout(() => {
-                    transition.style.display = 'none';
-                    imageContainer.style.display = 'flex';
-
-                    // Placeholder for transferring to the new game
-                    setTimeout(() => {
-                        alert('Now transferring to the new game: Escape the Cult!');
-                        // Add logic to load the new game here
-                    }, 3000);
-                }, 3000);
-            }
-        });
-    </script>
-</body>
-</html>
+    function startNewGame() {
+        // Placeholder for the new game logic
+        alert("The new game will begin here. Stay tuned for updates!");
+    }
+</script>
